@@ -10,6 +10,8 @@ using BepInEx.Logging;
 using Essentials.CustomOptions;
 using HarmonyLib;
 using Reactor;
+using UnityEngine;
+using Random = System.Random;
 
 namespace Glaucus
 {
@@ -20,6 +22,48 @@ namespace Glaucus
         public DateTime KillTime { get; set; }
         public DeathReason DeathReason { get; set; }
     }
+
+    public class Main
+    {
+        public static ModdedPalette Palette = new ModdedPalette();
+        public static ModdedLogic Logic = new ModdedLogic();
+    }
+
+    public class ModdedLogic
+    {
+        public ModPlayerControl getRolePlayer(string roleName)
+        {
+            return Main.Logic.AllModPlayerControl.Find(x => x.Role == roleName);
+        }
+
+        public List<ModPlayerControl> AllModPlayerControl = new List<ModPlayerControl>();
+    }
+
+    public class ModdedPalette
+    {
+        public Color jesterColor = new Color(191f / 255f, 0f / 255f, 255f / 255f, 1);
+    }
+
+    public class ModPlayerControl
+    {
+        public PlayerControl PlayerControl { get; set; }
+        public string Role { get; set; }
+    }
+
+    public static class Extensions
+    {
+        public static bool isPlayerRole(this PlayerControl player, string roleName)
+        {
+            if (player.getModdedControl() != null)
+                return player.getModdedControl().Role == roleName;
+            else
+                return false;
+        }
+        public static ModPlayerControl getModdedControl(this PlayerControl player)
+        {
+            return Main.Logic.AllModPlayerControl.Find(x => x.PlayerControl == player);
+        }
+    }
     
     [BepInPlugin(Id)]
     [BepInProcess("Among Us.exe")]
@@ -27,7 +71,7 @@ namespace Glaucus
     public class Glaucus : BasePlugin
     {
         public const string Id = "glaucus.pocus.Glaucus";
-        public static string versionString = "v1.0.0";
+        public static string versionString = "v1.1.0";
 
         public static ManualLogSource log;
 
@@ -35,7 +79,8 @@ namespace Glaucus
         public static CustomStringOption WhoCanVent = CustomOption.AddString("Who Can Vent", 
             new string[] { "Nobody", "Impostors", "Everyone" });
         public static CustomToggleOption ImpostorsKnowEachother = CustomOption.AddToggle("Impostors Know Eachother", true);
-        
+        public static CustomNumberOption JesterSpawnChance =
+            CustomOption.AddNumber("Jester Spawn Chance", 100, 0, 100, 5);
         public Harmony Harmony { get; } = new Harmony(Id);
 
         
@@ -48,10 +93,12 @@ namespace Glaucus
         public static PlayerControl CurrentTarget = null;
         public static PlayerControl localPlayer = null;
         public static List<PlayerControl> localPlayers = new List<PlayerControl>();
-        //the kill button in the bottom right
+        // the kill button in the bottom right
         public static KillButtonManager KillButton;
-        //distance between the local player and closest player
+        // distance between the local player and closest player
         public static double DistLocalClosest;
+        // RNG generator for role attribution
+        public static Random rng = new Random();
 
         public override void Load()
         {

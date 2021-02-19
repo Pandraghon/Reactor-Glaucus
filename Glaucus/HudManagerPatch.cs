@@ -17,6 +17,8 @@ namespace Glaucus
                 Glaucus.KillButton = __instance.KillButton;
                 PlayerTools.closestPlayer = PlayerTools.getClosestPlayer(PlayerControl.LocalPlayer);
                 Glaucus.DistLocalClosest = PlayerTools.getDistBetweenPlayers(PlayerControl.LocalPlayer, PlayerTools.closestPlayer);
+                PlayerControl jester = null;
+                
                 foreach (PlayerControl player in PlayerControl.AllPlayerControls)
                     player.nameText.Color = Color.white;
                 if (PlayerControl.LocalPlayer.Data.IsImpostor)
@@ -31,6 +33,11 @@ namespace Glaucus
                         Glaucus.CurrentTarget = PlayerTools.closestPlayer;
                     }
                 }
+                if (Main.Logic.getRolePlayer("Jester") != null && PlayerControl.LocalPlayer.isPlayerRole("Jester"))
+                {
+                    jester = Main.Logic.getRolePlayer("Jester").PlayerControl;
+                    jester.nameText.Color = Main.Palette.jesterColor;
+                }
                 if (MeetingHud.Instance != null)
                     foreach (PlayerVoteArea playerArea in MeetingHud.Instance.playerStates)
                     {
@@ -38,9 +45,14 @@ namespace Glaucus
                         playerArea.NameText.Color = Color.white;
                         PlayerControl player = PlayerControl.AllPlayerControls[playerArea.TargetPlayerId];
                         
+                        // Impostor
                         if (player.Data.IsImpostor && (Glaucus.ImpostorsKnowEachother.GetValue() ||
                                                                              PlayerControl.LocalPlayer.PlayerId == player.PlayerId))
                             playerArea.NameText.Color = Color.red;
+                        
+                        // Jester
+                        if (jester != null && jester.PlayerId == playerArea.TargetPlayerId)
+                            playerArea.NameText.Color = Main.Palette.jesterColor;
                     }
             }
         }
