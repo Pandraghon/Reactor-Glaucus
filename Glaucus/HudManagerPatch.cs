@@ -1,8 +1,7 @@
 ﻿using HarmonyLib;
-using System;
-using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using static Glaucus.Glaucus;
 
 namespace Glaucus
 {
@@ -14,9 +13,9 @@ namespace Glaucus
             if (AmongUsClient.Instance.GameState == InnerNetClient.GameStates.Started)
             {
                 var infected = (from x in GameData.Instance.AllPlayers.ToArray().Where(x => x.IsImpostor).ToList() select x.PlayerId).ToList();
-                Glaucus.KillButton = __instance.KillButton;
+                KillButton = __instance.KillButton;
                 PlayerTools.closestPlayer = PlayerTools.getClosestPlayer(PlayerControl.LocalPlayer);
-                Glaucus.DistLocalClosest = PlayerTools.getDistBetweenPlayers(PlayerControl.LocalPlayer, PlayerTools.closestPlayer);
+                DistLocalClosest = PlayerTools.getDistBetweenPlayers(PlayerControl.LocalPlayer, PlayerTools.closestPlayer);
                 PlayerControl jester = null;
                 
                 foreach (PlayerControl player in PlayerControl.AllPlayerControls)
@@ -24,13 +23,13 @@ namespace Glaucus
                 if (PlayerControl.LocalPlayer.Data.IsImpostor)
                 {
                     foreach (PlayerControl player in PlayerControl.AllPlayerControls)
-                        if (player.Data.IsImpostor && (Glaucus.ImpostorsKnowEachother.GetValue() ||
+                        if (player.Data.IsImpostor && (ImpostorsKnowEachother.GetValue() ||
                                                        PlayerControl.LocalPlayer.PlayerId == player.PlayerId))
                             player.nameText.Color = Color.red;
-                    if (!Glaucus.ImpostorsKnowEachother.GetValue() && Glaucus.DistLocalClosest < GameOptionsData.KillDistances[PlayerControl.GameOptions.KillDistance])
+                    if (!ImpostorsKnowEachother.GetValue() && DistLocalClosest < GameOptionsData.KillDistances[PlayerControl.GameOptions.KillDistance])
                     {
-                        Glaucus.KillButton.SetTarget(PlayerTools.closestPlayer);
-                        Glaucus.CurrentTarget = PlayerTools.closestPlayer;
+                        KillButton.SetTarget(PlayerTools.closestPlayer);
+                        CurrentTarget = PlayerTools.closestPlayer;
                     }
                 }
                 if (Main.Logic.getRolePlayer("Jester") != null && PlayerControl.LocalPlayer.isPlayerRole("Jester"))
@@ -43,11 +42,10 @@ namespace Glaucus
                     {
                         if (playerArea.NameText == null) continue;
                         playerArea.NameText.Color = Color.white;
-                        PlayerControl player = PlayerControl.AllPlayerControls[playerArea.TargetPlayerId];
+                        PlayerControl player = PlayerTools.getPlayerById((byte)playerArea.TargetPlayerId);
                         
                         // Impostor
-                        if (player.Data.IsImpostor && (Glaucus.ImpostorsKnowEachother.GetValue() ||
-                                                                             PlayerControl.LocalPlayer.PlayerId == player.PlayerId))
+                        if (player.Data.IsImpostor && (ImpostorsKnowEachother.GetValue() || PlayerControl.LocalPlayer.PlayerId == player.PlayerId))
                             playerArea.NameText.Color = Color.red;
                         
                         // Jester

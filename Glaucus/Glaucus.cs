@@ -71,7 +71,7 @@ namespace Glaucus
     public class Glaucus : BasePlugin
     {
         public const string Id = "glaucus.pocus.Glaucus";
-        public static string versionString = "v1.1.1";
+        public static string versionString = "v1.1.2";
 
         public static ManualLogSource log;
 
