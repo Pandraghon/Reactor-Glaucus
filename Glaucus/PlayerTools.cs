@@ -34,12 +34,7 @@ namespace Glaucus
             List<PlayerControl> CrewmateIds = new List<PlayerControl>();
             foreach (PlayerControl player in PlayerControl.AllPlayerControls)
             {
-                bool isInfected = false;
-                if (player.Data.IsImpostor)
-                {
-                    isInfected = true;
-                    break;
-                }
+                bool isInfected = player.Data.IsImpostor;
                 if (!isInfected)
                 {
                     CrewmateIds.Add(player);
