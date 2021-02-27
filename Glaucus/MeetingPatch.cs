@@ -30,6 +30,7 @@ namespace Glaucus
                     joker.Revive();
                     joker.Data.IsDead = false;
                     joker.Data.IsImpostor = true;
+                    Main.Logic.WinReason = WinReasons.Jester;
                 }
             }
         }

@@ -15,6 +15,10 @@ using Random = System.Random;
 
 namespace Glaucus
 {
+    public enum WinReasons
+    {
+        Imposters, Crewmates, Jester
+    }
     public class DeadPlayer
     {
         public byte KillerId { get; set; }
@@ -37,6 +41,8 @@ namespace Glaucus
         }
 
         public List<ModPlayerControl> AllModPlayerControl = new List<ModPlayerControl>();
+
+        public WinReasons WinReason = WinReasons.Crewmates;
     }
 
     public class ModdedPalette

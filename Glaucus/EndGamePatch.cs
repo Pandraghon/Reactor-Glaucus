@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using static Glaucus.Glaucus;
 
-namespace ExtraRolesMod
+namespace Glaucus
 {
     [HarmonyPatch(typeof(EndGameManager), "SetEverythingUp")]
     public static class EndGamePatch
@@ -43,6 +43,14 @@ namespace ExtraRolesMod
                     __instance.WinText.Text = "Defeat";
                     __instance.WinText.Color = Palette.ImpostorRed;
                     __instance.BackgroundBar.material.color = new Color(1, 0, 0);
+                }
+            }
+                
+            if (Main.Logic.WinReason == WinReasons.Jester)
+            {
+                foreach (PoolablePlayer player in Object.FindObjectsOfType<PoolablePlayer>())
+                {
+                    player.NameText.Color = Main.Palette.jesterColor;
                 }
             }
         }

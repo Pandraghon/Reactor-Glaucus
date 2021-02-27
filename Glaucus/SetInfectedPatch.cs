@@ -12,6 +12,7 @@ namespace Glaucus
         public static void Postfix(Il2CppReferenceArray<GameData.PlayerInfo> JPGEIBIBJPJ)
         {
             Main.Logic.AllModPlayerControl.Clear();
+            Main.Logic.WinReason = WinReasons.Crewmates;
             MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId,
                 (byte) CustomRPC.ResetVariables, Hazel.SendOption.None, -1);
             AmongUsClient.Instance.FinishRpcImmediately(writer);

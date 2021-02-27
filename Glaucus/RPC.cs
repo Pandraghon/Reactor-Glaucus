@@ -34,6 +34,7 @@ namespace Glaucus
                 case (byte)CustomRPC.ResetVariables:
                     Main.Logic.AllModPlayerControl.Clear();
                     List<PlayerControl> crewmates = PlayerControl.AllPlayerControls.ToArray().ToList();
+                    Main.Logic.WinReason = WinReasons.Crewmates;
                     foreach (PlayerControl plr in crewmates)
                         Main.Logic.AllModPlayerControl.Add(new ModPlayerControl { PlayerControl = plr, Role = "Impostor" });
                     crewmates.RemoveAll(x => x.Data.IsImpostor);
@@ -61,6 +62,7 @@ namespace Glaucus
                     jester.Revive();
                     jester.Data.IsDead = false;
                     jester.Data.IsImpostor = true;
+                    Main.Logic.WinReason = WinReasons.Jester;
                     break;
             }
         }
