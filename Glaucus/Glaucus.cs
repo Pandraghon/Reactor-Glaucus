@@ -54,6 +54,7 @@ namespace Glaucus
     {
         public PlayerControl PlayerControl { get; set; }
         public string Role { get; set; }
+        public float reportsLeft { get; set; }
     }
 
     public static class Extensions
@@ -62,8 +63,7 @@ namespace Glaucus
         {
             if (player.getModdedControl() != null)
                 return player.getModdedControl().Role == roleName;
-            else
-                return false;
+            return false;
         }
         public static ModPlayerControl getModdedControl(this PlayerControl player)
         {
@@ -77,11 +77,13 @@ namespace Glaucus
     public class Glaucus : BasePlugin
     {
         public const string Id = "glaucus.pocus.Glaucus";
-        public static string versionString = "v1.1.3";
+        public static string versionString = "v1.2.0";
 
         public static ManualLogSource log;
 
         //Credit to https://github.com/DorCoMaNdO/Reactor-Essentials
+        public static CustomNumberOption MaxReportCount = CustomOption.AddNumber("# Kill Reports", 
+            8, 0, 100, 1);
         public static CustomStringOption WhoCanVent = CustomOption.AddString("Who Can Vent", 
             new string[] { "Nobody", "Impostors", "Everyone" });
         public static CustomToggleOption ImpostorsKnowEachother = CustomOption.AddToggle("Impostors Know Eachother", true);
@@ -101,6 +103,8 @@ namespace Glaucus
         public static List<PlayerControl> localPlayers = new List<PlayerControl>();
         // the kill button in the bottom right
         public static KillButtonManager KillButton;
+        // the report button
+        public static ReportButtonManager ReportButton;
         // distance between the local player and closest player
         public static double DistLocalClosest;
         // RNG generator for role attribution
@@ -138,8 +142,7 @@ namespace Glaucus
             }));
 
             ServerManager.DefaultRegions = defaultRegions.ToArray();
-
-
+            
             Harmony.PatchAll();
         }
     }

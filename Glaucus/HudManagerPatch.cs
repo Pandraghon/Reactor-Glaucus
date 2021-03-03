@@ -14,6 +14,7 @@ namespace Glaucus
             {
                 var infected = (from x in GameData.Instance.AllPlayers.ToArray().Where(x => x.IsImpostor).ToList() select x.PlayerId).ToList();
                 KillButton = __instance.KillButton;
+                ReportButton = __instance.ReportButton;
                 PlayerTools.closestPlayer = PlayerTools.getClosestPlayer(PlayerControl.LocalPlayer);
                 DistLocalClosest = PlayerTools.getDistBetweenPlayers(PlayerControl.LocalPlayer, PlayerTools.closestPlayer);
                 PlayerControl jester = null;
@@ -52,6 +53,8 @@ namespace Glaucus
                         if (jester != null && jester.PlayerId == playerArea.TargetPlayerId)
                             playerArea.NameText.Color = Main.Palette.jesterColor;
                     }
+
+                ReportButton.enabled = localPlayer.getModdedControl().reportsLeft > 0;
             }
         }
     }

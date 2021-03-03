@@ -2,6 +2,7 @@
 using System.Linq;
 using HarmonyLib;
 using Hazel;
+using static Glaucus.Glaucus;
 
 namespace Glaucus
 {
@@ -23,20 +24,20 @@ namespace Glaucus
             switch (packetId)
             {
                 case (byte)CustomRPC.SetLocalPlayers:
-                    Glaucus.localPlayers.Clear();
-                    Glaucus.localPlayer = PlayerControl.LocalPlayer;
+                    localPlayers.Clear();
+                    localPlayer = PlayerControl.LocalPlayer;
                     var localPlayerBytes = ALMCIJKELCP.ReadBytesAndSize();
                     foreach (byte id in localPlayerBytes)
                         foreach (PlayerControl player in PlayerControl.AllPlayerControls)
                             if (player.PlayerId == id)
-                                Glaucus.localPlayers.Add(player);
+                                localPlayers.Add(player);
                     break;
                 case (byte)CustomRPC.ResetVariables:
                     Main.Logic.AllModPlayerControl.Clear();
                     List<PlayerControl> crewmates = PlayerControl.AllPlayerControls.ToArray().ToList();
                     Main.Logic.WinReason = WinReasons.Crewmates;
                     foreach (PlayerControl plr in crewmates)
-                        Main.Logic.AllModPlayerControl.Add(new ModPlayerControl { PlayerControl = plr, Role = "Impostor" });
+                        Main.Logic.AllModPlayerControl.Add(new ModPlayerControl { PlayerControl = plr, Role = "Impostor", reportsLeft = MaxReportCount.GetValue() });
                     crewmates.RemoveAll(x => x.Data.IsImpostor);
                     foreach (PlayerControl plr in crewmates)
                         plr.getModdedControl().Role = "Crewmate";

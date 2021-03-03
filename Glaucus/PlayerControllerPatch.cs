@@ -6,9 +6,10 @@ using static Glaucus.Glaucus;
 
 namespace Glaucus
 {
-    [HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.RpcSetInfected))]
-    public class SetInfectedPatch
+    [HarmonyPatch(typeof(PlayerControl))]
+    public class PlayerControllerPatch
     {
+        [HarmonyPatch(nameof(PlayerControl.RpcSetInfected))]
         public static void Postfix(Il2CppReferenceArray<GameData.PlayerInfo> JPGEIBIBJPJ)
         {
             Main.Logic.AllModPlayerControl.Clear();
@@ -19,7 +20,7 @@ namespace Glaucus
             
             List<PlayerControl> crewmates = PlayerTools.getCrewMates();
             foreach (PlayerControl player in PlayerControl.AllPlayerControls.ToArray())
-                Main.Logic.AllModPlayerControl.Add(new ModPlayerControl { PlayerControl = player, Role = "Impostor"});
+                Main.Logic.AllModPlayerControl.Add(new ModPlayerControl { PlayerControl = player, Role = "Impostor", reportsLeft = MaxReportCount.GetValue() });
             foreach (PlayerControl player in crewmates)
             {
                 player.getModdedControl().Role = "Crewmate";
@@ -46,8 +47,8 @@ namespace Glaucus
                     continue;
                 if (player.isPlayerRole("Joker"))
                     continue;
-                else
-                    localPlayers.Add(player);
+                
+                localPlayers.Add(player);
             }
             var localPlayerBytes = new List<byte>();
             foreach (PlayerControl player in localPlayers)
@@ -57,6 +58,12 @@ namespace Glaucus
             writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetLocalPlayers, Hazel.SendOption.None, -1);
             writer.WriteBytesAndSize(localPlayerBytes.ToArray());
             AmongUsClient.Instance.FinishRpcImmediately(writer);
+        }
+
+        [HarmonyPatch(nameof(PlayerControl.CmdReportDeadBody))]
+        public static void Postfix(PlayerControl __instance, GameData.PlayerInfo CAKODNGLPDF)
+        {
+            localPlayer.getModdedControl().reportsLeft -= 1;
         }
     }
 }
