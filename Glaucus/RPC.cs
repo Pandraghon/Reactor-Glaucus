@@ -8,6 +8,8 @@ namespace Glaucus
 {
     enum CustomRPC
     {
+        SetSheriff = 40,
+        SheriffKill = 42,
         SetJester = 50,
         ResetVariables = 51,
         SetLocalPlayers = 56,
@@ -23,6 +25,18 @@ namespace Glaucus
             MessageReader reader = ALMCIJKELCP;
             switch (packetId)
             {
+                case (byte) CustomRPC.SetSheriff:
+                    byte SheriffId = ALMCIJKELCP.ReadByte();
+                    foreach (PlayerControl player in PlayerControl.AllPlayerControls)
+                        if (player.PlayerId == SheriffId)
+                            player.getModdedControl().Role = "Sheriff";
+                    break;
+                case (byte)CustomRPC.SheriffKill:
+                    PlayerControl killer = PlayerTools.getPlayerById(reader.ReadByte());
+                    PlayerControl target = PlayerTools.getPlayerById(reader.ReadByte());
+                    if (killer.isPlayerRole("Sheriff"))
+                        killer.MurderPlayer(target);
+                    break;
                 case (byte)CustomRPC.SetLocalPlayers:
                     localPlayers.Clear();
                     localPlayer = PlayerControl.LocalPlayer;
@@ -37,15 +51,15 @@ namespace Glaucus
                     List<PlayerControl> crewmates = PlayerControl.AllPlayerControls.ToArray().ToList();
                     Main.Logic.WinReason = WinReasons.Crewmates;
                     foreach (PlayerControl plr in crewmates)
-                        Main.Logic.AllModPlayerControl.Add(new ModPlayerControl { PlayerControl = plr, Role = "Impostor", reportsLeft = MaxReportCount.GetValue() });
+                        Main.Logic.AllModPlayerControl.Add(new ModPlayerControl { PlayerControl = plr, Role = "Impostor", reportsLeft = MaxReportCount.GetValue(), LastAbilityTime = null });
                     crewmates.RemoveAll(x => x.Data.IsImpostor);
                     foreach (PlayerControl plr in crewmates)
                         plr.getModdedControl().Role = "Crewmate";
                     break;
                 case (byte)CustomRPC.SetJester:
-                    byte JokerId = ALMCIJKELCP.ReadByte();
+                    byte JesterId = ALMCIJKELCP.ReadByte();
                     foreach (PlayerControl player in PlayerControl.AllPlayerControls)
-                        if (player.PlayerId == JokerId)
+                        if (player.PlayerId == JesterId)
                             player.getModdedControl().Role = "Jester";
                     break;
                 case (byte)CustomRPC.JesterWin:

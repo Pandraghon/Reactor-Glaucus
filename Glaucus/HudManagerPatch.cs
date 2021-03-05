@@ -18,6 +18,7 @@ namespace Glaucus
                 PlayerTools.closestPlayer = PlayerTools.getClosestPlayer(PlayerControl.LocalPlayer);
                 DistLocalClosest = PlayerTools.getDistBetweenPlayers(PlayerControl.LocalPlayer, PlayerTools.closestPlayer);
                 PlayerControl jester = null;
+                PlayerControl sheriff = null;
                 
                 foreach (PlayerControl player in PlayerControl.AllPlayerControls)
                     player.nameText.Color = Color.white;
@@ -38,6 +39,27 @@ namespace Glaucus
                     jester = Main.Logic.getRolePlayer("Jester").PlayerControl;
                     jester.nameText.Color = Main.Palette.jesterColor;
                 }
+                if (Main.Logic.getRolePlayer("Sheriff") != null && PlayerControl.LocalPlayer.isPlayerRole("Sheriff"))
+                {
+                    sheriff = Main.Logic.getRolePlayer("Sheriff").PlayerControl;
+                    sheriff.nameText.Color = Main.Palette.sheriffColor;
+                    if (sheriff.Data.IsDead || __instance.UseButton == null || !__instance.UseButton.isActiveAndEnabled)
+                    {
+                        KillButton.gameObject.SetActive(false);
+                        KillButton.isActive = false;
+                    }
+                    else
+                    {
+                        KillButton.gameObject.SetActive(true);
+                        KillButton.isActive = true;
+                        KillButton.SetCoolDown(sheriff.getCoolDown(), SheriffKillCooldown.GetValue());
+                        if (DistLocalClosest < GameOptionsData.KillDistances[PlayerControl.GameOptions.KillDistance])
+                        {
+                            KillButton.SetTarget(PlayerTools.closestPlayer);
+                            CurrentTarget = PlayerTools.closestPlayer;
+                        }
+                    }
+                }
                 if (MeetingHud.Instance != null)
                     foreach (PlayerVoteArea playerArea in MeetingHud.Instance.playerStates)
                     {
@@ -52,9 +74,13 @@ namespace Glaucus
                         // Jester
                         if (jester != null && jester.PlayerId == playerArea.TargetPlayerId)
                             playerArea.NameText.Color = Main.Palette.jesterColor;
+                        
+                        // Sheriff
+                        if (sheriff != null && sheriff.PlayerId == playerArea.TargetPlayerId)
+                            playerArea.NameText.Color = Main.Palette.sheriffColor;
                     }
 
-                ReportButton.enabled = localPlayer.getModdedControl().reportsLeft > 0;
+                ReportButton.enabled = PlayerControl.LocalPlayer.getModdedControl().reportsLeft > 0;
             }
         }
     }

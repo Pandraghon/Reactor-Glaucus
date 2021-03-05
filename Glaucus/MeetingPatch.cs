@@ -11,6 +11,10 @@ namespace Glaucus
         {
             if (ExileController.Instance != null && obj == ExileController.Instance.gameObject)
             {
+                var sheriff = Main.Logic.getRolePlayer("Sheriff");
+                if (sheriff != null)
+                    sheriff.LastAbilityTime = DateTime.UtcNow;
+                
                 if (ExileController.Instance.exiled != null && ExileController.Instance.exiled._object.isPlayerRole("Jester"))
                 {
                     MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.JesterWin, Hazel.SendOption.None, -1);
