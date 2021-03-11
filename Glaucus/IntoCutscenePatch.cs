@@ -1,4 +1,5 @@
-﻿using HarmonyLib;
+﻿using System;
+using HarmonyLib;
 
 namespace Glaucus
 {
@@ -33,6 +34,15 @@ namespace Glaucus
                 __instance.__this.Title.Color = Main.Palette.jesterColor;
                 __instance.__this.ImpostorText.Text = "Get voted off of the ship to win";
                 __instance.__this.BackgroundBar.material.color = Main.Palette.jesterColor;
+            }
+            
+            if (PlayerControl.LocalPlayer.isPlayerRole("Sheriff"))
+            {
+                __instance.__this.Title.Text = "Sheriff";
+                __instance.__this.Title.Color = Main.Palette.sheriffColor;
+                __instance.__this.ImpostorText.Text = "Shoot the [FF0000FF]Impostor";
+                __instance.__this.BackgroundBar.material.color = Main.Palette.sheriffColor;
+                PlayerControl.LocalPlayer.getModdedControl().LastAbilityTime = DateTime.UtcNow;
             }
         }
     }

@@ -20,7 +20,7 @@ namespace Glaucus
             
             List<PlayerControl> crewmates = PlayerTools.getCrewMates();
             foreach (PlayerControl player in PlayerControl.AllPlayerControls.ToArray())
-                Main.Logic.AllModPlayerControl.Add(new ModPlayerControl { PlayerControl = player, Role = "Impostor", reportsLeft = MaxReportCount.GetValue() });
+                Main.Logic.AllModPlayerControl.Add(new ModPlayerControl { PlayerControl = player, Role = "Impostor", reportsLeft = MaxReportCount.GetValue(), LastAbilityTime = null });
             foreach (PlayerControl player in crewmates)
             {
                 player.getModdedControl().Role = "Crewmate";
@@ -38,14 +38,24 @@ namespace Glaucus
                 writer.Write(JesterId);
                 AmongUsClient.Instance.FinishRpcImmediately(writer);
             }
+            if (crewmates.Count > 0 && (rng.Next(0, 100) <= SheriffSpawnChance.GetValue()))
+            {
+                var idx = rng.Next(0, crewmates.Count);
+                crewmates[idx].getModdedControl().Role = "Sheriff";
+                byte SheriffId = crewmates[idx].PlayerId;
+                crewmates.RemoveAt(idx);
+
+                writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId,
+                    (byte) CustomRPC.SetSheriff, Hazel.SendOption.None, -1);
+                writer.Write(SheriffId);
+                AmongUsClient.Instance.FinishRpcImmediately(writer);
+            }
             
             localPlayers.Clear();
             localPlayer = PlayerControl.LocalPlayer;
             foreach (PlayerControl player in PlayerControl.AllPlayerControls)
             {
                 if (player.Data.IsImpostor)
-                    continue;
-                if (player.isPlayerRole("Joker"))
                     continue;
                 
                 localPlayers.Add(player);

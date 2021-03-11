@@ -48,6 +48,7 @@ namespace Glaucus
     public class ModdedPalette
     {
         public Color jesterColor = new Color(191f / 255f, 0f / 255f, 255f / 255f, 1);
+        public Color sheriffColor = new Color(255f / 255f, 204f / 255f, 0f / 255f, 1);
     }
 
     public class ModPlayerControl
@@ -55,6 +56,7 @@ namespace Glaucus
         public PlayerControl PlayerControl { get; set; }
         public string Role { get; set; }
         public float reportsLeft { get; set; }
+        public DateTime? LastAbilityTime { get; set; }
     }
 
     public static class Extensions
@@ -65,9 +67,25 @@ namespace Glaucus
                 return player.getModdedControl().Role == roleName;
             return false;
         }
+        
         public static ModPlayerControl getModdedControl(this PlayerControl player)
         {
             return Main.Logic.AllModPlayerControl.Find(x => x.PlayerControl == player);
+        }
+
+        public static float getCoolDown(this PlayerControl player)
+        {
+            var lastAbilityTime = player.getModdedControl().LastAbilityTime;
+            if (lastAbilityTime == null)
+                return Glaucus.SheriffKillCooldown.GetValue();
+
+            var diff = (TimeSpan) (DateTime.UtcNow - lastAbilityTime);
+            var cooldown = Glaucus.SheriffKillCooldown.GetValue() - (float) diff.TotalSeconds;
+
+            if (cooldown < 0)
+                return 0;
+
+            return cooldown;
         }
     }
     
@@ -77,7 +95,7 @@ namespace Glaucus
     public class Glaucus : BasePlugin
     {
         public const string Id = "glaucus.pocus.Glaucus";
-        public static string versionString = "v1.2.0";
+        public static string versionString = "v1.3.0";
 
         public static ManualLogSource log;
 
@@ -89,6 +107,10 @@ namespace Glaucus
         public static CustomToggleOption ImpostorsKnowEachother = CustomOption.AddToggle("Impostors Know Eachother", true);
         public static CustomNumberOption JesterSpawnChance =
             CustomOption.AddNumber("Jester Spawn Chance", 100, 0, 100, 5);
+        public static CustomNumberOption SheriffSpawnChance =
+            CustomOption.AddNumber("Sheriff Spawn Chance", 100, 0, 100, 5);
+        public static CustomNumberOption SheriffKillCooldown =
+            CustomOption.AddNumber("Sheriff Kill Cooldown", 30f, 10f, 45f, 2.5f);
         public Harmony Harmony { get; } = new Harmony(Id);
 
         
