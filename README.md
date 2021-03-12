@@ -1,4 +1,4 @@
-﻿# Glaucus
+﻿# BetterLobby
 
 An Among Us mod.  
 Including:

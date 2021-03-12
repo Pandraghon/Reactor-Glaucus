@@ -2,7 +2,7 @@
 using System.Linq;
 using HarmonyLib;
 using Hazel;
-using static Glaucus.Glaucus;
+using static Glaucus.BetterLobby;
 
 namespace Glaucus
 {
@@ -19,14 +19,14 @@ namespace Glaucus
     [HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.HandleRpc))]
     class HandleRpcPatch
     {
-        static void Postfix(byte HKHMBLJFLMC, MessageReader ALMCIJKELCP)
+        static void Postfix(byte ACCJCEHMKLN, MessageReader HFPCBBHJIPJ)
         {
-            byte packetId = HKHMBLJFLMC;
-            MessageReader reader = ALMCIJKELCP;
+            byte packetId = ACCJCEHMKLN;
+            MessageReader reader = HFPCBBHJIPJ;
             switch (packetId)
             {
                 case (byte) CustomRPC.SetSheriff:
-                    byte SheriffId = ALMCIJKELCP.ReadByte();
+                    byte SheriffId = reader.ReadByte();
                     foreach (PlayerControl player in PlayerControl.AllPlayerControls)
                         if (player.PlayerId == SheriffId)
                             player.getModdedControl().Role = "Sheriff";
@@ -40,7 +40,7 @@ namespace Glaucus
                 case (byte)CustomRPC.SetLocalPlayers:
                     localPlayers.Clear();
                     localPlayer = PlayerControl.LocalPlayer;
-                    var localPlayerBytes = ALMCIJKELCP.ReadBytesAndSize();
+                    var localPlayerBytes = reader.ReadBytesAndSize();
                     foreach (byte id in localPlayerBytes)
                         foreach (PlayerControl player in PlayerControl.AllPlayerControls)
                             if (player.PlayerId == id)
@@ -57,7 +57,7 @@ namespace Glaucus
                         plr.getModdedControl().Role = "Crewmate";
                     break;
                 case (byte)CustomRPC.SetJester:
-                    byte JesterId = ALMCIJKELCP.ReadByte();
+                    byte JesterId = reader.ReadByte();
                     foreach (PlayerControl player in PlayerControl.AllPlayerControls)
                         if (player.PlayerId == JesterId)
                             player.getModdedControl().Role = "Jester";

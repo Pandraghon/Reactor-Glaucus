@@ -1,7 +1,7 @@
 ﻿using HarmonyLib;
 using System;
 using Hazel;
-using static Glaucus.Glaucus;
+using static Glaucus.BetterLobby;
 
 namespace Glaucus
 {
@@ -45,7 +45,7 @@ namespace Glaucus
         [HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.MurderPlayer))]
         public static class MurderPlayerPatch
         {
-             public static bool Prefix(PlayerControl __instance, PlayerControl CAKODNGLPDF)
+             public static bool Prefix(PlayerControl __instance)
              {
                  if (__instance.isPlayerRole("Sheriff"))
                  {
@@ -54,7 +54,7 @@ namespace Glaucus
                  return true;
              }
              
-             public static void Postfix(PlayerControl __instance, PlayerControl CAKODNGLPDF)
+             public static void Postfix(PlayerControl __instance)
              {
                  if (__instance.isPlayerRole("Sheriff"))
                  {

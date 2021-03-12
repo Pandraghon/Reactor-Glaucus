@@ -1,7 +1,8 @@
 ﻿using HarmonyLib;
 using System.Linq;
+using InnerNet;
 using UnityEngine;
-using static Glaucus.Glaucus;
+using static Glaucus.BetterLobby;
 
 namespace Glaucus
 {

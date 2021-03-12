@@ -8,7 +8,7 @@ namespace Glaucus
     {
         static bool Prefix(IntroCutscene.CoBegin__d __instance)
         {
-            if (PlayerControl.LocalPlayer.Data.IsImpostor && !Glaucus.ImpostorsKnowEachother.GetValue())
+            if (PlayerControl.LocalPlayer.Data.IsImpostor && !BetterLobby.ImpostorsKnowEachother.GetValue())
             {
                 var team = new Il2CppSystem.Collections.Generic.List<PlayerControl>();
                 team.Add(PlayerControl.LocalPlayer);

@@ -3,13 +3,15 @@ using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Collections.Generic;
+using System.Reflection;
 using BepInEx;
 using BepInEx.Configuration;
 using BepInEx.IL2CPP;
 using BepInEx.Logging;
-using Essentials.CustomOptions;
+using Essentials.Options;
 using HarmonyLib;
 using Reactor;
+using Reactor.Patches;
 using UnityEngine;
 using Random = System.Random;
 
@@ -77,10 +79,10 @@ namespace Glaucus
         {
             var lastAbilityTime = player.getModdedControl().LastAbilityTime;
             if (lastAbilityTime == null)
-                return Glaucus.SheriffKillCooldown.GetValue();
+                return BetterLobby.SheriffKillCooldown.GetValue();
 
             var diff = (TimeSpan) (DateTime.UtcNow - lastAbilityTime);
-            var cooldown = Glaucus.SheriffKillCooldown.GetValue() - (float) diff.TotalSeconds;
+            var cooldown = BetterLobby.SheriffKillCooldown.GetValue() - (float) diff.TotalSeconds;
 
             if (cooldown < 0)
                 return 0;
@@ -92,10 +94,9 @@ namespace Glaucus
     [BepInPlugin(Id)]
     [BepInProcess("Among Us.exe")]
     [BepInDependency(ReactorPlugin.Id)]
-    public class Glaucus : BasePlugin
+    public class BetterLobby : BasePlugin
     {
-        public const string Id = "glaucus.pocus.Glaucus";
-        public static string versionString = "v1.3.0";
+        public const string Id = "glaucus.pocus.BetterLobby";
 
         public static ManualLogSource log;
 
@@ -112,12 +113,6 @@ namespace Glaucus
         public static CustomNumberOption SheriffKillCooldown =
             CustomOption.AddNumber("Sheriff Kill Cooldown", 30f, 10f, 45f, 2.5f);
         public Harmony Harmony { get; } = new Harmony(Id);
-
-        
-        public ConfigEntry<string> ServerName { get; private set; }
-        public ConfigEntry<string> ServerHost { get; private set; }
-        public ConfigEntry<ushort> ServerPort { get; private set; }
-        
         
         public static List<DeadPlayer> killedPlayers = new List<DeadPlayer>();
         public static PlayerControl CurrentTarget = null;
@@ -134,36 +129,14 @@ namespace Glaucus
 
         public override void Load()
         {
-            ServerName = Config.Bind("Server", "Name", "Glaucus Pocus");
-            ServerHost = Config.Bind("Server", "Hostname", "127.0.0.1");
-            ServerPort = Config.Bind("Server", "Port", (ushort) 22023);
+            CustomOption.ShamelessPlug = false;
 
-            var defaultRegions = ServerManager.DefaultRegions.ToList();
-            var ip = ServerHost.Value;
-            if (Uri.CheckSchemeName(ServerHost.Value).ToString() == "Dns")
+            ReactorVersionShower.TextUpdated += (text) =>
             {
-                try
-                {
-                    foreach (var address in Dns.GetHostAddresses(ServerHost.Value))
-                    {
-                        if (address.AddressFamily != AddressFamily.InterNetwork) continue;
-                        ip = address.ToString();
-                        break;
-                    }
-                }
-                catch
-                {
-                    log.LogMessage("Hostname could not be resolved" + ip);
-                }
-                log.LogMessage("IP is " + ip);
-            }
-
-            defaultRegions.Insert(0, new RegionInfo(ServerName.Value, ip, new[]
-            {
-                new ServerInfo($"{ServerName.Value}-Master-1", ip, ServerPort.Value)
-            }));
-
-            ServerManager.DefaultRegions = defaultRegions.ToArray();
+                int index = text.Text.LastIndexOf('\n');
+                text.Text = text.Text.Insert(index == -1 ? text.Text.Length - 1 : index, 
+                    "\n[00CC66FF]" + typeof(BetterLobby).Assembly.GetCustomAttribute<AssemblyDescriptionAttribute>().Description + " " + typeof(BetterLobby).Assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>().InformationalVersion + "[] by Pandraghon");
+            };
             
             Harmony.PatchAll();
         }

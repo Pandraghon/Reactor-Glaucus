@@ -2,7 +2,7 @@
 using HarmonyLib;
 using Hazel;
 using UnhollowerBaseLib;
-using static Glaucus.Glaucus;
+using static Glaucus.BetterLobby;
 
 namespace Glaucus
 {
@@ -10,7 +10,7 @@ namespace Glaucus
     public class PlayerControllerPatch
     {
         [HarmonyPatch(nameof(PlayerControl.RpcSetInfected))]
-        public static void Postfix(Il2CppReferenceArray<GameData.PlayerInfo> JPGEIBIBJPJ)
+        public static void Postfix([HarmonyArgument(0)] Il2CppReferenceArray<GameData.PlayerInfo> PlayerInfos)
         {
             Main.Logic.AllModPlayerControl.Clear();
             Main.Logic.WinReason = WinReasons.Crewmates;
@@ -71,7 +71,7 @@ namespace Glaucus
         }
 
         [HarmonyPatch(nameof(PlayerControl.CmdReportDeadBody))]
-        public static void Postfix(PlayerControl __instance, GameData.PlayerInfo CAKODNGLPDF)
+        public static void Postfix(GameData.PlayerInfo __instance)
         {
             localPlayer.getModdedControl().reportsLeft -= 1;
         }
